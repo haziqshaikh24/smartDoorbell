@@ -1,0 +1,227 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Doorbell 🔔</title>  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #111827, #2563eb);
+      padding: 20px;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 400px;
+      background: white;
+      border-radius: 28px;
+      padding: 35px 25px;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+    }
+
+    .house {
+      font-size: 60px;
+    }
+
+    h1 {
+      margin: 10px 0;
+      font-size: 30px;
+    }
+
+    p {
+      color: #666;
+      font-size: 17px;
+    }
+
+    #ringButton {
+      width: 190px;
+      height: 190px;
+      border-radius: 50%;
+      border: none;
+      background: #2563eb;
+      color: white;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+      margin: 30px auto;
+      box-shadow: 0 10px 25px rgba(37,99,235,0.4);
+    }
+
+    #ringButton:active {
+      transform: scale(0.93);
+    }
+
+    #status {
+      font-size: 18px;
+      font-weight: bold;
+      color: #555;
+      min-height: 30px;
+    }
+
+    .ringing {
+      background: #dc2626 !important;
+      animation: pulse 0.8s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.06); }
+      100% { transform: scale(1); }
+    }
+
+    .small {
+      margin-top: 20px;
+      font-size: 13px;
+      color: #999;
+    }
+  </style></head><body>  <div class="card"><div class="house">🏠</div>
+
+<h1>Smart Doorbell</h1>
+
+<p>Someone is at the door?</p>
+
+<button id="ringButton">
+  🔔<br>
+  RING
+</button>
+
+<div id="status">
+  Ready
+</div>
+
+<div class="small">
+  QR Smart Doorbell
+</div>
+
+  </div>  <script type="module">
+
+    import { initializeApp }
+      from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+
+    import {
+      getDatabase,
+      ref,
+      set,
+      onValue
+    }
+      from "https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js";
+
+
+    const firebaseConfig = {
+
+      apiKey: "AIzaSyCHX01wfKzDd-maWhVVfNC5y4H4vxYdL0s",
+
+      authDomain: "smartdoorbell-e547a.firebaseapp.com",
+
+      projectId: "smartdoorbell-e547a",
+
+      storageBucket: "smartdoorbell-e547a.firebasestorage.app",
+
+      messagingSenderId: "900495891377",
+
+      appId: "1:900495891377:web:99d97d1de0dea9d9fafb90",
+
+      measurementId: "G-SZLMJP9N19",
+
+      databaseURL:
+        "https://smartdoorbell-e547a-default-rtdb.firebaseio.com"
+    };
+
+
+    const app = initializeApp(firebaseConfig);
+
+    const database = getDatabase(app);
+
+    const bellRef = ref(database, "doorbell");
+
+
+    const button =
+      document.getElementById("ringButton");
+
+    const status =
+      document.getElementById("status");
+
+
+    button.addEventListener("click", async () => {
+
+      try {
+
+        await set(bellRef, {
+          ringing: true,
+          time: Date.now()
+        });
+
+        status.innerHTML = "✅ Bell sent!";
+
+        button.classList.add("ringing");
+
+        setTimeout(() => {
+          button.classList.remove("ringing");
+        }, 2000);
+
+      } catch (error) {
+
+        console.error(error);
+
+        status.innerHTML =
+          "❌ Could not ring bell";
+
+      }
+
+    });
+
+
+    onValue(bellRef, (snapshot) => {
+
+      const data = snapshot.val();
+
+      if (!data || data.ringing !== true) {
+        return;
+      }
+
+      status.innerHTML =
+        "🚨 🔔 SOMEONE IS AT THE DOOR!";
+
+      button.classList.add("ringing");
+
+      if (navigator.vibrate) {
+
+        navigator.vibrate([
+          500,
+          300,
+          500,
+          300,
+          800
+        ]);
+
+      }
+
+      try {
+
+        const audio = new Audio(
+          "https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg"
+        );
+
+        audio.play().catch(() => {});
+
+      } catch (e) {}
+
+      setTimeout(() => {
+
+        button.classList.remove("ringing");
+
+      }, 5000);
+
+    });
+
+  </script></body>
+</html>
