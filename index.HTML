@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MindEase AI - Your Compassionate Therapy & Wellness Companion</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js for Mood Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        heading: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        sage: {
+                            50: '#f4f7f5',
+                            100: '#e3ece6',
+                            200: '#c7d9ce',
+                            300: '#a3beae',
+                            400: '#7a9f8b',
+                            500: '#5b836d',
+                            600: '#466855',
+                            700: '#395345',
+                            800: '#30443a',
+                            900: '#2a3a32',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+        .dark ::-webkit-scrollbar-thumb { background: #334155; }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+        .dark .glass-card {
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid rgba(51, 65, 85, 0.6);
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col font-sans text-slate-800 dark:text-slate-100 bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
+
+    <!-- Top Emergency / Safety Banner -->
+    <div class="bg-amber-500/10 border-b border-amber-500/20 text-amber-800 dark:text-amber-200 px-4 py-2 text-xs md:text-sm flex items-center justify-between">
+        <div class="flex items-center gap-2 max-w-5xl mx-auto w-full">
+            <i class="fa-solid fa-triangle-exclamation text-amber-600 dark:text-amber-400"></i>
+            <span><strong>MindEase AI is a supportive wellness tool, not a clinical therapy service.</strong> If you're experiencing a mental health crisis, please seek professional emergency help.</span>
+        </div>
+        <button onclick="openCrisisModal()" class="px-3 py-1 bg-amber-600 hover:bg-amber-700 text-white font-medium text-xs rounded-full transition shadow-sm whitespace-nowrap ml-2">
+            Get Emergency Help
+        </button>
+    </div>
+
+    <!-- Main Navigation Header -->
+    <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <!-- Brand -->
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-sage-500 to-teal-400 flex items-center justify-center text-white shadow-md shadow-sage-500/20">
+                    <i class="fa-solid fa-spa text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-heading font-bold text-xl leading-none text-slate-900 dark:text-white">MindEase <span class="text-sage-600 dark:text-sage-400 font-normal">AI</span></h1>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Empathetic Mental Wellness Space</p>
+                </div>
+            </div>
+
+            <!-- Top Actions -->
+            <div class="flex items-center gap-2 sm:gap-3">
+                <!-- API Key Config Button -->
+                <button onclick="openApiKeyModal()" id="api-key-badge" class="px-3 py-1.5 rounded-xl text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 border border-amber-300 dark:border-amber-700 flex items-center gap-1.5 transition hover:opacity-90">
+                    <i class="fa-solid fa-key"></i>
+                    <span id="api-status-text">Setup API Key</span>
+                </button>
+
+                <!-- Persona Switcher -->
+                <div class="hidden lg:flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl text-xs font-medium">
+                    <button onclick="setPersona('elena')" id="btn-persona-elena" class="persona-btn active px-3 py-1.5 rounded-lg text-slate-700 dark:text-slate-200 transition bg-white dark:bg-slate-700 shadow-sm">
+                        <i class="fa-solid fa-heart-pulse text-sage-500 mr-1.5"></i>Dr. Elena (CBT)
+                    </button>
+                    <button onclick="setPersona('marcus')" id="btn-persona-marcus" class="persona-btn px-3 py-1.5 rounded-lg text-slate-500 dark:text-slate-400 transition hover:text-slate-800 dark:hover:text-slate-200">
+                        <i class="fa-solid fa-compass text-sky-500 mr-1.5"></i>Marcus (Mindfulness)
+                    </button>
+                    <button onclick="setPersona('aria')" id="btn-persona-aria" class="persona-btn px-3 py-1.5 rounded-lg text-slate-500 dark:text-slate-400 transition hover:text-slate-800 dark:hover:text-slate-200">
+                        <i class="fa-solid fa-seedling text-emerald-500 mr-1.5"></i>Aria (Empathetic)
+                    </button>
+                </div>
+
+                <!-- AI Voice Audio Toggle -->
+                <button id="voice-toggle-btn" onclick="toggleAIVoice()" title="Toggle AI Audio Response" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition flex items-center gap-2 text-xs font-medium">
+                    <i id="voice-icon" class="fa-solid fa-volume-high text-sage-600 dark:text-sage-400"></i>
+                    <span class="hidden sm:inline" id="voice-label">AI Voice On</span>
+                </button>
+
+                <!-- Dark Mode Toggle -->
+                <button onclick="toggleDarkMode()" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition">
+                    <i class="fa-solid fa-moon dark:hidden"></i>
+                    <i class="fa-solid fa-sun hidden dark:block text-amber-400"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- App Container -->
+    <div class="flex-1 max-w-7xl w-full mx-auto px-2 sm:px-6 lg:px-8 py-4 flex flex-col md:flex-row gap-4 overflow-hidden">
+
+        <!-- Sidebar Navigation -->
+        <aside class="w-full md:w-64 bg-white dark:bg-slate-900 rounded-2xl p-3 border border-slate-200 dark:border-slate-800 shadow-sm flex md:flex-col justify-between shrink-0 gap-1 overflow-x-auto">
+            <nav class="flex md:flex-col gap-1.5 w-full">
+                <button onclick="switchTab('chat')" id="tab-chat" class="nav-tab active flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm text-sage-700 dark:text-sage-300 bg-sage-50 dark:bg-sage-900/30 transition w-full text-left">
+                    <i class="fa-solid fa-comments text-lg text-sage-600 dark:text-sage-400"></i>
+                    <span>AI Therapy Chat</span>
+                </button>
+                <button onclick="switchTab('cbt')" id="tab-cbt" class="nav-tab flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition w-full text-left">
+                    <i class="fa-solid fa-brain text-lg text-indigo-500"></i>
+                    <span>CBT Thought Reframer</span>
+                </button>
+                <button onclick="switchTab('breathing')" id="tab-breathing" class="nav-tab flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition w-full text-left">
+                    <i class="fa-solid fa-wind text-lg text-sky-500"></i>
+                    <span>Guided Breathing</span>
+                </button>
+                <button onclick="switchTab('mood')" id="tab-mood" class="nav-tab flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition w-full text-left">
+                    <i class="fa-solid fa-chart-line text-lg text-emerald-500"></i>
+                    <span>Mood Tracker & Insights</span>
+                </button>
+                <button onclick="switchTab('journal')" id="tab-journal" class="nav-tab flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition w-full text-left">
+                    <i class="fa-solid fa-book-journal-whills text-lg text-amber-500"></i>
+                    <span>Reflective Journal</span>
+                </button>
+            </nav>
+
+            <div class="hidden md:block pt-4 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-400 px-3">
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                    <span class="font-medium text-slate-600 dark:text-slate-300">Session Encrypted</span>
+                </div>
+                <p>Your conversations stay safely in your browser.</p>
+            </div>
+        </aside>
+
+        <!-- Main Content View Container -->
+        <main class="flex-1 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col overflow-hidden relative">
+
+            <!-- TAB 1: AI Therapy Chat -->
+            <section id="view-chat" class="tab-view flex-1 flex flex-col h-full overflow-hidden">
+                <!-- Chat Top Info Bar -->
+                <div class="px-6 py-3.5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/30">
+                    <div class="flex items-center gap-3">
+                        <div class="relative">
+                            <div id="therapist-avatar" class="w-10 h-10 rounded-full bg-sage-500 text-white flex items-center justify-center font-bold text-lg shadow-sm">
+                                E
+                            </div>
+                            <span class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white dark:border-slate-900 rounded-full"></span>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h2 id="therapist-name" class="font-semibold text-slate-800 dark:text-slate-100 text-sm">Dr. Elena Vance</h2>
+                                <span id="therapist-badge" class="px-2 py-0.5 text-[10px] bg-sage-100 dark:bg-sage-900/50 text-sage-700 dark:text-sage-300 font-medium rounded-full">Cognitive Behavioral</span>
+                            </div>
+                            <p id="therapist-status" class="text-xs text-slate-500 dark:text-slate-400">Here to listen, support, and guide your reframing.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="clearChatHistory()" title="Clear Chat History" class="p-2 text-slate-400 hover:text-rose-500 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition text-xs flex items-center gap-1.5">
+                            <i class="fa-solid fa-trash-can"></i>
+                            <span class="hidden sm:inline">Reset Chat</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Chat History Window -->
+                <div id="chat-history" class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+                    <!-- Dynamic Messages injected here -->
+                </div>
+
+                <!-- Suggestion Chips -->
+                <div class="px-4 py-2 border-t border-slate-100 dark:border-slate-800/60 overflow-x-auto flex gap-2 no-scrollbar bg-slate-50/30 dark:bg-slate-950/20">
+                    <button onclick="usePromptSuggestion('I am feeling very anxious about work today and can\'t focus.')" class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-sage-100 dark:hover:bg-sage-900/40 text-slate-600 dark:text-slate-300 hover:text-sage-700 dark:hover:text-sage-300 rounded-full text-xs font-medium whitespace-nowrap transition border border-slate-200/60 dark:border-slate-700/50">
+                        😰 Feeling anxious about work
+                    </button>
+                    <button onclick="usePromptSuggestion('I have a spiraling negative thought and need help reframing it.')" class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-sage-100 dark:hover:bg-sage-900/40 text-slate-600 dark:text-slate-300 hover:text-sage-700 dark:hover:text-sage-300 rounded-full text-xs font-medium whitespace-nowrap transition border border-slate-200/60 dark:border-slate-700/50">
+                        🔄 Reframe negative thought
+                    </button>
+                    <button onclick="usePromptSuggestion('I am feeling lonely and overwhelmed right now.')" class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-sage-100 dark:hover:bg-sage-900/40 text-slate-600 dark:text-slate-300 hover:text-sage-700 dark:hover:text-sage-300 rounded-full text-xs font-medium whitespace-nowrap transition border border-slate-200/60 dark:border-slate-700/50">
+                        🌧️ Overwhelmed & lonely
+                    </button>
+                    <button onclick="usePromptSuggestion('Guide me through a quick grounding exercise to calm my nerves.')" class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-sage-100 dark:hover:bg-sage-900/40 text-slate-600 dark:text-slate-300 hover:text-sage-700 dark:hover:text-sage-300 rounded-full text-xs font-medium whitespace-nowrap transition border border-slate-200/60 dark:border-slate-700/50">
+                        ✨ Quick grounding exercise
+                    </button>
+                </div>
+
+                <!-- Input Box -->
+                <div class="p-3 sm:p-4 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+                    <form id="chat-form" onsubmit="handleSendChat(event)" class="flex items-end gap-2 bg-slate-100 dark:bg-slate-800/80 p-2 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 focus-within:border-sage-500 focus-within:ring-2 focus-within:ring-sage-500/20 transition">
+                        
+                        <!-- Mic Button -->
+                        <button type="button" id="mic-btn" onclick="toggleSpeechRecognition()" title="Voice Input" class="p-2.5 text-slate-400 hover:text-sage-600 dark:hover:text-sage-400 rounded-xl transition hover:bg-white dark:hover:bg-slate-700">
+                            <i class="fa-solid fa-microphone text-base"></i>
+                        </button>
+
+                        <textarea id="user-input" rows="1" placeholder="Share what's on your mind... (Shift+Enter for newline)" class="flex-1 bg-transparent border-0 resize-none focus:outline-none focus:ring-0 text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 max-h-32 py-2 px-1" onkeydown="handleKeyDown(event)"></textarea>
+
+                        <button type="submit" id="send-btn" class="p-2.5 bg-sage-600 hover:bg-sage-700 text-white rounded-xl font-medium transition shadow-sm disabled:opacity-50 flex items-center justify-center">
+                            <i class="fa-solid fa-paper-plane text-sm"></i>
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- TAB 2: CBT Thought Reframer -->
+            <section id="view-cbt" class="tab-view hidden flex-1 p-6 overflow-y-auto space-y-6">
+                <div class="max-w-3xl mx-auto space-y-6">
+                    <div>
+                        <h2 class="text-2xl font-heading font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                            <i class="fa-solid fa-brain text-indigo-500"></i> CBT Cognitive Reframer
+                        </h2>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Identify cognitive distortions and reframe unhelpful automatic thoughts into balanced perspectives.</p>
+                    </div>
+
+                    <form onsubmit="handleCBTSubmit(event)" class="space-y-4 glass-card p-6 rounded-2xl shadow-sm">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">1. Automatic Negative Thought (ANT)</label>
+                            <input type="text" id="cbt-thought" placeholder="e.g., 'I messed up my presentation, now everyone thinks I'm incompetent.'" required class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">2. Identified Distortion</label>
+                                <select id="cbt-distortion" class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                    <option value="Catastrophizing">Catastrophizing (Expecting the worst outcome)</option>
+                                    <option value="All-or-Nothing Thinking">All-or-Nothing Thinking (Black/white view)</option>
+                                    <option value="Mind Reading">Mind Reading (Assuming others think poorly of you)</option>
+                                    <option value="Emotional Reasoning">Emotional Reasoning ("I feel stupid, so I must be")</option>
+                                    <option value="Overgeneralization">Overgeneralization ("I always fail")</option>
+                                    <option value="Mental Filter">Mental Filter (Focusing only on negative details)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">3. Emotional Intensity (1 - 10)</label>
+                                <input type="range" id="cbt-intensity" min="1" max="10" value="7" oninput="document.getElementById('intensity-val').innerText = this.value" class="w-full accent-indigo-500 mt-2">
+                                <div class="text-right text-xs text-slate-500 font-medium">Intensity: <span id="intensity-val" class="font-bold text-indigo-600 dark:text-indigo-400">7</span>/10</div>
+                            </div>
+                        </div>
+
+                        <button type="submit" id="cbt-ai-btn" class="w-full py-3 px-6 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl transition shadow-md flex items-center justify-center gap-2 text-sm">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> Generate AI CBT Reframing Analysis
+                        </button>
+                    </form>
+
+                    <div id="cbt-result" class="hidden glass-card p-6 rounded-2xl border-l-4 border-indigo-500 space-y-4">
+                        <h3 class="font-bold text-slate-900 dark:text-white text-base flex items-center gap-2">
+                            <i class="fa-solid fa-square-check text-indigo-500"></i> Balanced Cognitive Reframe
+                        </h3>
+                        <div id="cbt-output-text" class="text-sm text-slate-700 dark:text-slate-300 space-y-3 leading-relaxed"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: Guided Breathing & Grounding -->
+            <section id="view-breathing" class="tab-view hidden flex-1 p-6 overflow-y-auto">
+                <div class="max-w-3xl mx-auto space-y-8 text-center">
+                    <div>
+                        <h2 class="text-2xl font-heading font-bold text-slate-900 dark:text-white">
+                            <i class="fa-solid fa-wind text-sky-500 mr-2"></i> Guided Breathing & Grounding
+                        </h2>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Calm your nervous system using box breathing and sensory grounding exercises.</p>
+                    </div>
+
+                    <!-- Mode Toggle -->
+                    <div class="inline-flex p-1 bg-slate-100 dark:bg-slate-800 rounded-xl text-xs font-medium">
+                        <button onclick="switchBreathingSubtab('box')" id="subtab-box" class="px-4 py-2 rounded-lg bg-white dark:bg-slate-700 shadow-sm text-slate-800 dark:text-white font-semibold transition">
+                            🫁 Box Breathing (4-4-4-4)
+                        </button>
+                        <button onclick="switchBreathingSubtab('grounding')" id="subtab-grounding" class="px-4 py-2 rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-white transition">
+                            👁️ 5-4-3-2-1 Sensory Grounding
+                        </button>
+                    </div>
+
+                    <div id="breathing-orb-container" class="space-y-6">
+                        <div class="relative w-64 h-64 mx-auto flex items-center justify-center">
+                            <div id="breathe-circle" class="w-48 h-48 rounded-full bg-gradient-to-tr from-sky-400 to-teal-300 dark:from-sky-600 dark:to-teal-500 flex flex-col items-center justify-center text-white font-semibold text-lg shadow-xl shadow-sky-500/20 transition-all duration-1000">
+                                <span id="breathe-phase" class="text-xl font-bold">Ready</span>
+                                <span id="breathe-timer" class="text-xs font-normal opacity-90 mt-1">Click Start</span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-center gap-4">
+                            <button id="breathe-btn" onclick="toggleBreathingSession()" class="px-6 py-3 bg-sky-600 hover:bg-sky-700 text-white font-medium text-sm rounded-xl transition shadow-md flex items-center gap-2">
+                                <i id="breathe-btn-icon" class="fa-solid fa-play"></i>
+                                <span id="breathe-btn-text">Start Box Breathing</span>
+                            </button>
+                            <button onclick="toggleAmbientSound()" id="sound-btn" class="px-4 py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 font-medium text-sm rounded-xl transition flex items-center gap-2">
+                                <i class="fa-solid fa-water"></i>
+                                <span id="sound-btn-text">Ocean Sounds</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="grounding-container" class="hidden text-left glass-card p-6 rounded-2xl space-y-6">
+                        <h3 class="font-bold text-slate-900 dark:text-white text-base">5-4-3-2-1 Sensory Reset Exercise</h3>
+                        <p class="text-xs text-slate-500">Acknowledge your surroundings step by step to bring focus back to the present moment.</p>
+                        <div class="space-y-3 text-sm text-slate-700 dark:text-slate-300">
+                            <div class="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl">👁️ <strong>5 things you can SEE:</strong> Look around for colors, shapes, light.</div>
+                            <div class="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl">✋ <strong>4 things you can TOUCH:</strong> Feel your chair, clothes, floor.</div>
+                            <div class="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl">👂 <strong>3 things you can HEAR:</strong> Listen for distant sounds or hums.</div>
+                            <div class="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl">👃 <strong>2 things you can SMELL:</strong> Notice subtle ambient scents.</div>
+                            <div class="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl">👅 <strong>1 thing you can TASTE:</strong> Sip water or focus on present taste.</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: Mood Tracker -->
+            <section id="view-mood" class="tab-view hidden flex-1 p-6 overflow-y-auto space-y-6">
+                <div class="max-w-4xl mx-auto space-y-6">
+                    <div>
+                        <h2 class="text-2xl font-heading font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                            <i class="fa-solid fa-chart-line text-emerald-500"></i> Mood Tracker & AI Insights
+                        </h2>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Log your emotional state daily and uncover patterns with AI analysis.</p>
+                    </div>
+
+                    <div class="glass-card p-6 rounded-2xl space-y-4">
+                        <h3 class="font-semibold text-sm text-slate-800 dark:text-slate-200">How are you feeling right now?</h3>
+                        <div class="flex justify-between max-w-md mx-auto gap-2">
+                            <button onclick="selectMoodScore(1)" class="mood-score-btn flex-1 py-3 bg-slate-100 dark:bg-slate-800 rounded-2xl text-2xl transition border-2 border-transparent">😞</button>
+                            <button onclick="selectMoodScore(2)" class="mood-score-btn flex-1 py-3 bg-slate-100 dark:bg-slate-800 rounded-2xl text-2xl transition border-2 border-transparent">🙁</button>
+                            <button onclick="selectMoodScore(3)" class="mood-score-btn flex-1 py-3 bg-slate-100 dark:bg-slate-800 rounded-2xl text-2xl transition border-2 border-transparent">😐</button>
+                            <button onclick="selectMoodScore(4)" class="mood-score-btn flex-1 py-3 bg-slate-100 dark:bg-slate-800 rounded-2xl text-2xl transition border-2 border-transparent">🙂</button>
+                            <button onclick="selectMoodScore(5)" class="mood-score-btn flex-1 py-3 bg-slate-100 dark:bg-slate-800 rounded-2xl text-2xl transition border-2 border-transparent">😄</button>
+                        </div>
+                        <div class="flex gap-2">
+                            <input type="text" id="mood-note" placeholder="Brief note about your day..." class="flex-1 px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm">
+                            <button onclick="saveMoodEntry()" class="px-5 py-2.5 bg-emerald-600 text-white rounded-xl font-medium text-sm hover:bg-emerald-700">Save Log</button>
+                        </div>
+                    </div>
+
+                    <div class="glass-card p-6 rounded-2xl space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-bold text-slate-900 dark:text-white text-base">Mood Trend Chart</h3>
+                            <button onclick="generateAIMoodReport()" class="px-3 py-1.5 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 rounded-lg text-xs font-semibold hover:bg-emerald-200 transition flex items-center gap-1.5">
+                                <i class="fa-solid fa-sparkles"></i> AI Insights
+                            </button>
+                        </div>
+                        <div class="w-full h-64 relative">
+                            <canvas id="moodChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div id="mood-ai-report" class="hidden glass-card p-6 rounded-2xl border-l-4 border-emerald-500">
+                        <h4 class="font-bold text-slate-900 dark:text-white text-sm mb-2"><i class="fa-solid fa-robot text-emerald-500 mr-2"></i>AI Emotional Pattern Analysis</h4>
+                        <div id="mood-ai-text" class="text-sm text-slate-700 dark:text-slate-300"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 5: Reflective Journal -->
+            <section id="view-journal" class="tab-view hidden flex-1 p-6 overflow-y-auto space-y-6">
+                <div class="max-w-3xl mx-auto space-y-6">
+                    <div>
+                        <h2 class="text-2xl font-heading font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                            <i class="fa-solid fa-book-journal-whills text-amber-500"></i> Guided Reflective Journal
+                        </h2>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Express thoughts freely with prompt generators and gentle AI feedback.</p>
+                    </div>
+
+                    <div class="glass-card p-6 rounded-2xl space-y-4">
+                        <textarea id="journal-text" rows="8" placeholder="Start writing your thoughts here..." class="w-full p-4 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500 resize-y"></textarea>
+                        <button onclick="getAIJournalFeedback()" class="px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-medium text-sm transition shadow-md flex items-center gap-2">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> Compassionate AI Reflection
+                        </button>
+                    </div>
+
+                    <div id="journal-ai-feedback" class="hidden glass-card p-6 rounded-2xl border-l-4 border-amber-500">
+                        <h4 class="font-bold text-slate-900 dark:text-white text-sm mb-2"><i class="fa-solid fa-heart text-amber-500 mr-2"></i>Supportive Reflection</h4>
+                        <div id="journal-ai-text" class="text-sm text-slate-700 dark:text-slate-300"></div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- API KEY CONFIGURATION MODAL -->
+    <div id="api-key-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-5">
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+                <div class="flex items-center gap-2 text-sage-600 dark:text-sage-400">
+                    <i class="fa-solid fa-key text-xl"></i>
+                    <h3 class="font-heading font-bold text-lg text-slate-900 dark:text-white">Enter Google Gemini API Key</h3>
+                </div>
+                <button onclick="closeApiKeyModal()" class="text-slate-400 hover:text-slate-600">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                To activate <strong>Dr. Elena Vance</strong> on your deployed website, paste your free Google Gemini API Key below.
+            </p>
+
+            <div class="p-3 bg-slate-50 dark:bg-slate-800/80 rounded-xl border border-slate-200 dark:border-slate-700 text-xs space-y-1 text-slate-600 dark:text-slate-300">
+                <strong class="text-slate-800 dark:text-slate-100">How to get a FREE key in 30 seconds:</strong>
+                <ol class="list-decimal pl-4 space-y-1 mt-1">
+                    <li>Go to <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-sage-600 dark:text-sage-400 underline font-semibold">Google AI Studio</a></li>
+                    <li>Sign in with Google and click <strong>Create API key</strong></li>
+                    <li>Copy and paste your key below</li>
+                </ol>
+            </div>
+
+            <div class="space-y-2">
+                <label class="block text-xs font-semibold uppercase text-slate-500">Your Gemini API Key</label>
+                <input type="password" id="api-key-input" placeholder="AIzaSy..." class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-sage-500">
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button onclick="saveApiKey()" class="flex-1 py-3 bg-sage-600 hover:bg-sage-700 text-white font-medium rounded-xl text-sm transition shadow-sm">
+                    Save Key & Activate
+                </button>
+                <button onclick="closeApiKeyModal()" class="px-4 py-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl text-sm hover:bg-slate-200">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Crisis Modal -->
+    <div id="crisis-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-6">
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
+                <div class="flex items-center gap-3 text-rose-600">
+                    <i class="fa-solid fa-shield-heart text-2xl"></i>
+                    <h3 class="font-heading font-bold text-xl text-slate-900 dark:text-white">Emergency Support</h3>
+                </div>
+                <button onclick="closeCrisisModal()" class="text-slate-400 hover:text-slate-600">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <p class="text-sm text-slate-600 dark:text-slate-300">If you are in distress, connect with professionals immediately:</p>
+            <div class="space-y-3 text-sm">
+                <div class="p-4 bg-rose-50 dark:bg-rose-950/30 rounded-2xl flex items-center justify-between">
+                    <div><strong class="block text-rose-900 dark:text-rose-200">US & Canada Crisis Lifeline</strong><span class="text-xs text-rose-700 dark:text-rose-300">Call/text 24/7 free</span></div>
+                    <a href="tel:988" class="px-4 py-2 bg-rose-600 text-white font-bold rounded-xl text-sm">Dial 988</a>
+                </div>
+                <div class="p-4 bg-sky-50 dark:bg-sky-950/30 rounded-2xl flex items-center justify-between">
+                    <div><strong class="block text-sky-900 dark:text-sky-200">Crisis Text Line</strong><span class="text-xs text-sky-700 dark:text-sky-300">Text HOME to connect</span></div>
+                    <a href="sms:741741" class="px-4 py-2 bg-sky-600 text-white font-bold rounded-xl text-sm">Text 741741</a>
+                </div>
+            </div>
+            <button onclick="closeCrisisModal()" class="w-full py-3 bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-xl font-medium text-sm">Return to MindEase</button>
+        </div>
+    </div>
+
+    <script>
+        // State variables
+        let apiKey = localStorage.getItem('mindease_gemini_api_key') || "";
+        let activeTab = 'chat';
+        let currentPersona = 'elena';
+        let aiVoiceEnabled = true;
+        let isBreathingActive = false;
+        let breathingTimerInterval = null;
+        let ambientAudioContext = null;
+        let selectedMoodScore = 3;
+        let moodChartInstance = null;
+        let speechRecognition = null;
+
+        const PERSONAS = {
+            elena: {
+                name: "Dr. Elena Vance",
+                badge: "Cognitive Behavioral",
+                avatar: "E",
+                systemPrompt: "You are Dr. Elena Vance, a compassionate, warm, and highly skilled Cognitive Behavioral Therapy (CBT) virtual assistant. Offer active listening, empathetic validation, and CBT reframing. Speak warmly and keep responses concise and grounding (1-3 paragraphs)."
+            },
+            marcus: {
+                name: "Marcus Thorne",
+                badge: "Mindfulness Practitioner",
+                avatar: "M",
+                systemPrompt: "You are Marcus Thorne, a gentle Mindfulness practitioner. Focus on presence, acceptance, breath awareness, and non-judgmental observation."
+            },
+            aria: {
+                name: "Aria Chen",
+                badge: "Empathetic Listener",
+                avatar: "A",
+                systemPrompt: "You are Aria Chen, an empathetic emotional wellness companion offering warm validation and actionable coping micro-steps."
+            }
+        };
+
+        let chatHistory = JSON.parse(localStorage.getItem('mindease_chat_history') || '[]');
+        let moodLogs = JSON.parse(localStorage.getItem('mindease_mood_logs') || '[]');
+
+        window.onload = function() {
+            updateApiBadge();
+            renderChatHistory();
+            initMoodChart();
+            setupSpeechRecognition();
+
+            if (!apiKey) {
+                openApiKeyModal();
+            }
+
+            if (chatHistory.length === 0) {
+                chatHistory.push({
+                    sender: 'ai',
+                    text: "Hello, I'm Dr. Elena Vance. Welcome to your safe space. How are you feeling today?",
+                    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                });
+                saveChatHistory();
+                renderChatHistory();
+            }
+        };
+
+        // API Key Management
+        function openApiKeyModal() {
+            document.getElementById('api-key-input').value = apiKey;
+            document.getElementById('api-key-modal').classList.remove('hidden');
+        }
+
+        function closeApiKeyModal() {
+            document.getElementById('api-key-modal').classList.add('hidden');
+        }
+
+        function saveApiKey() {
+            const inputVal = document.getElementById('api-key-input').value.trim();
+            if (!inputVal) {
+                alert("Please enter a valid Gemini API Key.");
+                return;
+            }
+            apiKey = inputVal;
+            localStorage.setItem('mindease_gemini_api_key', apiKey);
+            updateApiBadge();
+            closeApiKeyModal();
+            alert("API Key saved successfully! You can now speak with Dr. Elena Vance.");
+        }
+
+        function updateApiBadge() {
+            const statusText = document.getElementById('api-status-text');
+            const badge = document.getElementById('api-key-badge');
+
+            if (apiKey) {
+                statusText.innerText = "API Active";
+                badge.className = "px-3 py-1.5 rounded-xl text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 flex items-center gap-1.5 transition";
+            } else {
+                statusText.innerText = "Setup API Key";
+                badge.className = "px-3 py-1.5 rounded-xl text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 border border-amber-300 dark:border-amber-700 flex items-center gap-1.5 transition";
+            }
+        }
+
+        function switchTab(tabId) {
+            activeTab = tabId;
+            document.querySelectorAll('.tab-view').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.nav-tab').forEach(el => {
+                el.classList.remove('active', 'bg-sage-50', 'dark:bg-sage-900/30', 'text-sage-700', 'dark:text-sage-300');
+                el.classList.add('text-slate-600', 'dark:text-slate-400');
+            });
+
+            document.getElementById(`view-${tabId}`).classList.remove('hidden');
+            const targetBtn = document.getElementById(`tab-${tabId}`);
+            targetBtn.classList.add('active', 'bg-sage-50', 'dark:bg-sage-900/30', 'text-sage-700', 'dark:text-sage-300');
+            targetBtn.classList.remove('text-slate-600', 'dark:text-slate-400');
+        }
+
+        function setPersona(personaKey) {
+            currentPersona = personaKey;
+            const p = PERSONAS[personaKey];
+            document.querySelectorAll('.persona-btn').forEach(btn => btn.classList.remove('active', 'bg-white', 'dark:bg-slate-700'));
+            document.getElementById(`btn-persona-${personaKey}`).classList.add('active', 'bg-white', 'dark:bg-slate-700');
+            document.getElementById('therapist-name').innerText = p.name;
+            document.getElementById('therapist-badge').innerText = p.badge;
+            document.getElementById('therapist-avatar').innerText = p.avatar;
+        }
+
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+        }
+
+        function toggleAIVoice() {
+            aiVoiceEnabled = !aiVoiceEnabled;
+            document.getElementById('voice-label').innerText = aiVoiceEnabled ? "AI Voice On" : "AI Voice Off";
+        }
+
+        function renderChatHistory() {
+            const container = document.getElementById('chat-history');
+            container.innerHTML = '';
+
+            chatHistory.forEach(msg => {
+                const isUser = msg.sender === 'user';
+                const msgDiv = document.createElement('div');
+                msgDiv.className = `flex gap-3 max-w-2xl ${isUser ? 'ml-auto flex-row-reverse' : ''}`;
+
+                const avatar = isUser ? '👤' : PERSONAS[currentPersona].avatar;
+                const bgClass = isUser ? 'bg-sage-600 text-white rounded-2xl rounded-tr-none' : 'glass-card text-slate-800 dark:text-slate-100 rounded-2xl rounded-tl-none border border-slate-200/80 dark:border-slate-800';
+
+                msgDiv.innerHTML = `
+                    <div class="w-8 h-8 rounded-full ${isUser ? 'bg-slate-700 text-white' : 'bg-sage-500 text-white'} flex items-center justify-center font-bold text-xs shrink-0 mt-1">
+                        ${avatar}
+                    </div>
+                    <div class="space-y-1">
+                        <div class="p-4 text-sm leading-relaxed ${bgClass}">
+                            ${escapeHtml(msg.text).replace(/\n/g, '<br>')}
+                        </div>
+                        <div class="flex items-center gap-2 ${isUser ? 'justify-end' : ''} text-[10px] text-slate-400 px-1">
+                            <span>${msg.time || ''}</span>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(msgDiv);
+            });
+
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function saveChatHistory() {
+            localStorage.setItem('mindease_chat_history', JSON.stringify(chatHistory));
+        }
+
+        function clearChatHistory() {
+            chatHistory = [];
+            saveChatHistory();
+            renderChatHistory();
+        }
+
+        function handleKeyDown(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSendChat(e);
+            }
+        }
+
+        function usePromptSuggestion(text) {
+            document.getElementById('user-input').value = text;
+            handleSendChat(new Event('submit'));
+        }
+
+        async function handleSendChat(e) {
+            if (e) e.preventDefault();
+            
+            if (!apiKey) {
+                openApiKeyModal();
+                return;
+            }
+
+            const inputEl = document.getElementById('user-input');
+            const text = inputEl.value.trim();
+            if (!text) return;
+
+            if (detectCrisisKeywords(text)) {
+                openCrisisModal();
+            }
+
+            const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            chatHistory.push({ sender: 'user', text: text, time: timeStr });
+            inputEl.value = '';
+            renderChatHistory();
+
+            showTypingIndicator();
+
+            try {
+                const aiResponseText = await callGeminiTextAPI(text);
+                removeTypingIndicator();
+
+                chatHistory.push({ sender: 'ai', text: aiResponseText, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) });
+                saveChatHistory();
+                renderChatHistory();
+
+                if (aiVoiceEnabled) {
+                    speakText(aiResponseText);
+                }
+            } catch (err) {
+                console.error("Chat API Error:", err);
+                removeTypingIndicator();
+                chatHistory.push({ sender: 'ai', text: "API Error: Please check your Gemini API key in the top right menu.", time: timeStr });
+                renderChatHistory();
+            }
+        }
+
+        function showTypingIndicator() {
+            const container = document.getElementById('chat-history');
+            const typingDiv = document.createElement('div');
+            typingDiv.id = 'typing-indicator';
+            typingDiv.className = 'flex gap-3 max-w-2xl';
+            typingDiv.innerHTML = `
+                <div class="w-8 h-8 rounded-full bg-sage-500 text-white flex items-center justify-center font-bold text-xs shrink-0">
+                    ${PERSONAS[currentPersona].avatar}
+                </div>
+                <div class="glass-card p-4 rounded-2xl rounded-tl-none flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-sage-500 animate-bounce"></span>
+                    <span class="w-2 h-2 rounded-full bg-sage-500 animate-bounce [animation-delay:0.2s]"></span>
+                    <span class="w-2 h-2 rounded-full bg-sage-500 animate-bounce [animation-delay:0.4s]"></span>
+                </div>
+            `;
+            container.appendChild(typingDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            const el = document.getElementById('typing-indicator');
+            if (el) el.remove();
+        }
+
+        async function callGeminiTextAPI(userPrompt) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+            const systemPrompt = PERSONAS[currentPersona].systemPrompt;
+
+            const contents = chatHistory.slice(-6).map(m => ({
+                role: m.sender === 'user' ? 'user' : 'model',
+                parts: [{ text: m.text }]
+            }));
+
+            const payload = {
+                contents: contents,
+                systemInstruction: { parts: [{ text: systemPrompt }] }
+            };
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData.error?.message || `HTTP ${response.status}`);
+            }
+
+            const data = await response.json();
+            return data.candidates?.[0]?.content?.parts?.[0]?.text || "I am listening closely to you.";
+        }
+
+        function speakText(rawText) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(rawText);
+                utterance.rate = 0.95;
+                utterance.pitch = 1.0;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function setupSpeechRecognition() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                speechRecognition = new SpeechRecognition();
+                speechRecognition.continuous = false;
+                speechRecognition.onresult = (event) => {
+                    const transcript = event.results[0][0].transcript;
+                    const inputEl = document.getElementById('user-input');
+                    inputEl.value = (inputEl.value ? inputEl.value + ' ' : '') + transcript;
+                };
+            }
+        }
+
+        function toggleSpeechRecognition() {
+            if (speechRecognition) {
+                speechRecognition.start();
+            } else {
+                alert("Speech recognition is not supported in this browser.");
+            }
+        }
+
+        async function handleCBTSubmit(e) {
+            e.preventDefault();
+            if (!apiKey) { openApiKeyModal(); return; }
+
+            const thought = document.getElementById('cbt-thought').value;
+            const distortion = document.getElementById('cbt-distortion').value;
+            const intensity = document.getElementById('cbt-intensity').value;
+
+            const btn = document.getElementById('cbt-ai-btn');
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Reframing...`;
+
+            const prompt = `Analyze this thought: "${thought}", Distortion: ${distortion}, Intensity: ${intensity}/10. Provide a gentle 3-part CBT reframe.`;
+
+            try {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                });
+                const data = await response.json();
+                const reframeText = data.candidates?.[0]?.content?.parts?.[0]?.text || "Thoughts are not facts.";
+
+                document.getElementById('cbt-result').classList.remove('hidden');
+                document.getElementById('cbt-output-text').innerHTML = escapeHtml(reframeText).replace(/\n/g, '<br>');
+            } catch (err) {
+                alert("Error reframing thought. Please verify your API Key.");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> Generate AI CBT Reframing Analysis`;
+            }
+        }
+
+        function switchBreathingSubtab(type) {
+            if (type === 'box') {
+                document.getElementById('breathing-orb-container').classList.remove('hidden');
+                document.getElementById('grounding-container').classList.add('hidden');
+            } else {
+                document.getElementById('breathing-orb-container').classList.add('hidden');
+                document.getElementById('grounding-container').classList.remove('hidden');
+            }
+        }
+
+        function toggleBreathingSession() {
+            isBreathingActive = !isBreathingActive;
+            const phaseEl = document.getElementById('breathe-phase');
+            const circle = document.getElementById('breathe-circle');
+
+            if (!isBreathingActive) {
+                clearInterval(breathingTimerInterval);
+                phaseEl.innerText = "Ready";
+                circle.style.transform = "scale(1)";
+                return;
+            }
+
+            let step = 0;
+            const phases = ["Inhale", "Hold", "Exhale", "Hold"];
+
+            breathingTimerInterval = setInterval(() => {
+                phaseEl.innerText = phases[step];
+                circle.style.transform = step === 0 ? "scale(1.4)" : step === 2 ? "scale(1)" : circle.style.transform;
+                step = (step + 1) % 4;
+            }, 4000);
+        }
+
+        function toggleAmbientSound() {
+            const btnText = document.getElementById('sound-btn-text');
+            if (ambientAudioContext) {
+                ambientAudioContext.close();
+                ambientAudioContext = null;
+                btnText.innerText = "Ocean Sounds";
+                return;
+            }
+
+            try {
+                ambientAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const bufferSize = ambientAudioContext.sampleRate * 2;
+                const noiseBuffer = ambientAudioContext.createBuffer(1, bufferSize, ambientAudioContext.sampleRate);
+                const output = noiseBuffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1;
+
+                const whiteNoise = ambientAudioContext.createBufferSource();
+                whiteNoise.buffer = noiseBuffer;
+                whiteNoise.loop = true;
+
+                const filter = ambientAudioContext.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.value = 400;
+
+                whiteNoise.connect(filter);
+                filter.connect(ambientAudioContext.destination);
+                whiteNoise.start();
+                btnText.innerText = "Stop Sound";
+            } catch (e) { console.error(e); }
+        }
+
+        function selectMoodScore(score) {
+            selectedMoodScore = score;
+        }
+
+        function saveMoodEntry() {
+            const note = document.getElementById('mood-note').value;
+            moodLogs.push({
+                date: new Date().toLocaleDateString([], { month: 'short', day: 'numeric' }),
+                score: selectedMoodScore,
+                note: note
+            });
+            localStorage.setItem('mindease_mood_logs', JSON.stringify(moodLogs));
+            initMoodChart();
+            alert("Mood logged!");
+        }
+
+        function initMoodChart() {
+            const ctx = document.getElementById('moodChart').getContext('2d');
+            const labels = moodLogs.length > 0 ? moodLogs.map(l => l.date) : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+            const data = moodLogs.length > 0 ? moodLogs.map(l => l.score) : [3, 4, 2, 4, 5];
+
+            if (moodChartInstance) moodChartInstance.destroy();
+
+            moodChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Mood Score (1-5)',
+                        data: data,
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+
+        async function generateAIMoodReport() {
+            if (!apiKey) { openApiKeyModal(); return; }
+            const reportBox = document.getElementById('mood-ai-report');
+            const reportText = document.getElementById('mood-ai-text');
+            reportBox.classList.remove('hidden');
+            reportText.innerText = "Analyzing mood entries...";
+
+            try {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: `Analyze these mood entries: ${JSON.stringify(moodLogs)}. Give a 2-sentence summary.` }] }] })
+                });
+                const data = await response.json();
+                reportText.innerText = data.candidates?.[0]?.content?.parts?.[0]?.text || "Steady emotional balance.";
+            } catch (e) {
+                reportText.innerText = "Unable to fetch report.";
+            }
+        }
+
+        async function getAIJournalFeedback() {
+            if (!apiKey) { openApiKeyModal(); return; }
+            const text = document.getElementById('journal-text').value;
+            if (!text) return;
+
+            const box = document.getElementById('journal-ai-feedback');
+            const output = document.getElementById('journal-ai-text');
+            box.classList.remove('hidden');
+            output.innerText = "Reflecting...";
+
+            try {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: `Read this journal and provide gentle validation: "${text}"` }] }] })
+                });
+                const data = await response.json();
+                output.innerText = data.candidates?.[0]?.content?.parts?.[0]?.text || "Thank you for sharing your thoughts.";
+            } catch (e) { output.innerText = "Feedback unavailable."; }
+        }
+
+        function detectCrisisKeywords(text) {
+            const keywords = ['suicide', 'kill myself', 'end my life', 'want to die', 'self harm'];
+            return keywords.some(k => text.toLowerCase().includes(k));
+        }
+
+        function openCrisisModal() { document.getElementById('crisis-modal').classList.remove('hidden'); }
+        function closeCrisisModal() { document.getElementById('crisis-modal').classList.add('hidden'); }
+        function escapeHtml(str) { return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+    </script>
+</body>
+</html>
